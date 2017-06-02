@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Web.Http;
 using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json.Serialization;
+using Swashbuckle.Application;
 
 namespace FindTheClueAPI
 {
@@ -25,6 +26,9 @@ namespace FindTheClueAPI
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+            config.EnableSwagger(c => c.SingleApiVersion("v1", "FindTheClueAPI"))
+                .EnableSwaggerUi();
         }
     }
 }
