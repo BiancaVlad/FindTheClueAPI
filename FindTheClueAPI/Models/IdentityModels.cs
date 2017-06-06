@@ -1,8 +1,10 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
+using System.Data.Entity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
+using MySql.Data;
 
 namespace FindTheClueAPI.Models
 {
@@ -18,11 +20,13 @@ namespace FindTheClueAPI.Models
         }
     }
 
+    [DbConfigurationType(typeof(MySql.Data.Entity.MySqlEFConfiguration))]
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("DefaultConnection", throwIfV1Schema: false)
+            : base("DefaultConnection")
         {
+            Database.SetInitializer(new MySqlInitializer());
         }
         
         public static ApplicationDbContext Create()
