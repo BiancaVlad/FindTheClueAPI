@@ -55,9 +55,9 @@ namespace FindTheClueAPI
             //    consumerKey: "",
             //    consumerSecret: "");
 
-            //app.UseFacebookAuthentication(
-            //    appId: "",
-            //    appSecret: "");
+            app.UseFacebookAuthentication(
+                appId: "1371101752938569",
+                appSecret: "5e5eb58408131fd2b3afa20a3134429d");
 
             //app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
             //{
