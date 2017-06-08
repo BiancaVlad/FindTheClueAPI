@@ -56,6 +56,8 @@
           <Property Name="text_answer" Type="varchar" MaxLength="45" Nullable="false" />
           <Property Name="score" Type="double" Nullable="false" />
           <Property Name="game_id_game" Type="int" Nullable="false" />
+          <Property Name="longitude" Type="double" Nullable="false" />
+          <Property Name="latitude" Type="double" Nullable="false" />
         </EntityType>
         <EntityType Name="team">
           <Key>
@@ -171,6 +173,8 @@
           <Property Name="score" Type="Double" Nullable="false" />
           <Property Name="game_id_game" Type="Int32" Nullable="false" />
           <NavigationProperty Name="game" Relationship="Self.fk_question_game" FromRole="question" ToRole="game" />
+          <Property Name="longitude" Type="Double" Nullable="false" />
+          <Property Name="latitude" Type="Double" Nullable="false" />
         </EntityType>
         <EntityType Name="team">
           <Key>
@@ -257,6 +261,8 @@
           <EntitySetMapping Name="questions">
             <EntityTypeMapping TypeName="findthecluedbModel.question">
               <MappingFragment StoreEntitySet="question">
+                <ScalarProperty Name="latitude" ColumnName="latitude" />
+                <ScalarProperty Name="longitude" ColumnName="longitude" />
                 <ScalarProperty Name="id_question" ColumnName="id_question" />
                 <ScalarProperty Name="answer_type" ColumnName="answer_type" />
                 <ScalarProperty Name="answer" ColumnName="answer" />

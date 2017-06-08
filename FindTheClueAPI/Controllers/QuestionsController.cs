@@ -48,7 +48,7 @@ namespace FindTheClueAPI.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id_question,answer_type,answer,text_answer,score,game_id_game")] question question)
+        public ActionResult Create([Bind(Include = "id_question,answer_type,answer,text_answer,score,game_id_game,longitude,latitude")] question question)
         {
             if (ModelState.IsValid)
             {
@@ -82,7 +82,7 @@ namespace FindTheClueAPI.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id_question,answer_type,answer,text_answer,score,game_id_game")] question question)
+        public ActionResult Edit([Bind(Include = "id_question,answer_type,answer,text_answer,score,game_id_game,longitude,latitude")] question question)
         {
             if (ModelState.IsValid)
             {

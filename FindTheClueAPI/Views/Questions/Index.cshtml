@@ -24,6 +24,12 @@
             @Html.DisplayNameFor(model => model.score)
         </th>
         <th>
+            @Html.DisplayNameFor(model => model.longitude)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.latitude)
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.game.name)
         </th>
         <th></th>
@@ -42,6 +48,12 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.score)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.longitude)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.latitude)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.game.name)

@@ -20,6 +20,8 @@ namespace FindTheClueAPI
         public string text_answer { get; set; }
         public double score { get; set; }
         public int game_id_game { get; set; }
+        public double longitude { get; set; }
+        public double latitude { get; set; }
     
         public virtual game game { get; set; }
     }
