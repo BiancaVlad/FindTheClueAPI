@@ -2,117 +2,108 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Web;
-using System.Web.Mvc;
+using System.Net.Http;
+using System.Web.Http;
+using System.Web.Http.Description;
 using FindTheClueAPI;
 
 namespace FindTheClueAPI.Controllers
 {
-    public class TeamsController : Controller
+    public class TeamsController : ApiController
     {
         private findthecluedbEntities db = new findthecluedbEntities();
 
-        // GET: Teams
-        public ActionResult Index()
+        public TeamsController()
         {
-            return View(db.teams.ToList());
+            db.Configuration.ProxyCreationEnabled = false;
         }
 
-        // GET: Teams/Details/5
-        public ActionResult Details(int? id)
+        // GET: api/Teams
+        public IQueryable<team> Getteams()
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            return db.teams;
+        }
+
+        // GET: api/Teams/5
+        [ResponseType(typeof(team))]
+        public IHttpActionResult Getteam(int id)
+        {
             team team = db.teams.Find(id);
             if (team == null)
             {
-                return HttpNotFound();
+                return NotFound();
             }
-            return View(team);
+
+            return Ok(team);
         }
 
-        // GET: Teams/Create
-        public ActionResult Create()
+        // PUT: api/Teams/5
+        [ResponseType(typeof(void))]
+        public IHttpActionResult Putteam(int id, team team)
         {
-            return View();
-        }
-
-        // POST: Teams/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id_team,name,score")] team team)
-        {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                db.teams.Add(team);
+                return BadRequest(ModelState);
+            }
+
+            if (id != team.id_team)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(team).State = EntityState.Modified;
+
+            try
+            {
                 db.SaveChanges();
-                return RedirectToAction("Index");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!teamExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            return View(team);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // GET: Teams/Edit/5
-        public ActionResult Edit(int? id)
+        // POST: api/Teams
+        [ResponseType(typeof(team))]
+        public IHttpActionResult Postteam(team team)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return BadRequest(ModelState);
             }
+
+            db.teams.Add(team);
+            db.SaveChanges();
+
+            return CreatedAtRoute("DefaultApi", new { id = team.id_team }, team);
+        }
+
+        // DELETE: api/Teams/5
+        [ResponseType(typeof(team))]
+        public IHttpActionResult Deleteteam(int id)
+        {
             team team = db.teams.Find(id);
             if (team == null)
             {
-                return HttpNotFound();
+                return NotFound();
             }
-            return View(team);
-        }
 
-        // POST: Teams/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id_team,name,score")] team team)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(team).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(team);
-        }
-
-        // GET: Teams/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            team team = db.teams.Find(id);
-            if (team == null)
-            {
-                return HttpNotFound();
-            }
-            return View(team);
-        }
-
-        // POST: Teams/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            team team = db.teams.Find(id);
             db.teams.Remove(team);
             db.SaveChanges();
-            return RedirectToAction("Index");
+
+            return Ok(team);
         }
 
         protected override void Dispose(bool disposing)
@@ -122,6 +113,11 @@ namespace FindTheClueAPI.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private bool teamExists(int id)
+        {
+            return db.teams.Count(e => e.id_team == id) > 0;
         }
     }
 }

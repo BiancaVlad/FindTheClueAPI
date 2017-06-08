@@ -2,122 +2,108 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Web;
-using System.Web.Mvc;
+using System.Net.Http;
+using System.Web.Http;
+using System.Web.Http.Description;
 using FindTheClueAPI;
 
 namespace FindTheClueAPI.Controllers
 {
-    public class QuestionsController : Controller
+    public class QuestionsController : ApiController
     {
         private findthecluedbEntities db = new findthecluedbEntities();
 
-        // GET: Questions
-        public ActionResult Index()
+        public QuestionsController()
         {
-            var questions = db.questions.Include(q => q.game);
-            return View(questions.ToList());
+            db.Configuration.ProxyCreationEnabled = false;
         }
 
-        // GET: Questions/Details/5
-        public ActionResult Details(int? id)
+        // GET: api/Questions
+        public IQueryable<question> Getquestions()
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            return db.questions;
+        }
+
+        // GET: api/Questions/5
+        [ResponseType(typeof(question))]
+        public IHttpActionResult Getquestion(int id)
+        {
             question question = db.questions.Find(id);
             if (question == null)
             {
-                return HttpNotFound();
+                return NotFound();
             }
-            return View(question);
+
+            return Ok(question);
         }
 
-        // GET: Questions/Create
-        public ActionResult Create()
+        // PUT: api/Questions/5
+        [ResponseType(typeof(void))]
+        public IHttpActionResult Putquestion(int id, question question)
         {
-            ViewBag.game_id_game = new SelectList(db.games, "id_game", "name");
-            return View();
-        }
-
-        // POST: Questions/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id_question,answer_type,answer,text_answer,score,game_id_game,longitude,latitude")] question question)
-        {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                db.questions.Add(question);
+                return BadRequest(ModelState);
+            }
+
+            if (id != question.id_question)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(question).State = EntityState.Modified;
+
+            try
+            {
                 db.SaveChanges();
-                return RedirectToAction("Index");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!questionExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            ViewBag.game_id_game = new SelectList(db.games, "id_game", "name", question.game_id_game);
-            return View(question);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // GET: Questions/Edit/5
-        public ActionResult Edit(int? id)
+        // POST: api/Questions
+        [ResponseType(typeof(question))]
+        public IHttpActionResult Postquestion(question question)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return BadRequest(ModelState);
             }
+
+            db.questions.Add(question);
+            db.SaveChanges();
+
+            return CreatedAtRoute("DefaultApi", new { id = question.id_question }, question);
+        }
+
+        // DELETE: api/Questions/5
+        [ResponseType(typeof(question))]
+        public IHttpActionResult Deletequestion(int id)
+        {
             question question = db.questions.Find(id);
             if (question == null)
             {
-                return HttpNotFound();
+                return NotFound();
             }
-            ViewBag.game_id_game = new SelectList(db.games, "id_game", "name", question.game_id_game);
-            return View(question);
-        }
 
-        // POST: Questions/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id_question,answer_type,answer,text_answer,score,game_id_game,longitude,latitude")] question question)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(question).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            ViewBag.game_id_game = new SelectList(db.games, "id_game", "name", question.game_id_game);
-            return View(question);
-        }
-
-        // GET: Questions/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            question question = db.questions.Find(id);
-            if (question == null)
-            {
-                return HttpNotFound();
-            }
-            return View(question);
-        }
-
-        // POST: Questions/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            question question = db.questions.Find(id);
             db.questions.Remove(question);
             db.SaveChanges();
-            return RedirectToAction("Index");
+
+            return Ok(question);
         }
 
         protected override void Dispose(bool disposing)
@@ -127,6 +113,11 @@ namespace FindTheClueAPI.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private bool questionExists(int id)
+        {
+            return db.questions.Count(e => e.id_question == id) > 0;
         }
     }
 }

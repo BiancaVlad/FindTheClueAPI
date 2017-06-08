@@ -14,6 +14,9 @@ namespace FindTheClueAPI
     
     public partial class question
     {
+        public question()
+        {
+        }
         public int id_question { get; set; }
         public Nullable<int> answer_type { get; set; }
         public string answer { get; set; }

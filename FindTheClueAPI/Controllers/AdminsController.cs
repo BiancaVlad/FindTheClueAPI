@@ -2,117 +2,108 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Web;
-using System.Web.Mvc;
+using System.Net.Http;
+using System.Web.Http;
+using System.Web.Http.Description;
 using FindTheClueAPI;
 
 namespace FindTheClueAPI.Controllers
 {
-    public class AdminsController : Controller
+    public class AdminsController : ApiController
     {
         private findthecluedbEntities db = new findthecluedbEntities();
 
-        // GET: Admins
-        public ActionResult Index()
+        public AdminsController()
         {
-            return View(db.admins.ToList());
+            db.Configuration.ProxyCreationEnabled = false;
         }
 
-        // GET: Admins/Details/5
-        public ActionResult Details(int? id)
+        // GET: api/Admins
+        public IQueryable<admin> Getadmins()
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            return db.admins;
+        }
+
+        // GET: api/Admins/5
+        [ResponseType(typeof(admin))]
+        public IHttpActionResult Getadmin(int id)
+        {
             admin admin = db.admins.Find(id);
             if (admin == null)
             {
-                return HttpNotFound();
+                return NotFound();
             }
-            return View(admin);
+
+            return Ok(admin);
         }
 
-        // GET: Admins/Create
-        public ActionResult Create()
+        // PUT: api/Admins/5
+        [ResponseType(typeof(void))]
+        public IHttpActionResult Putadmin(int id, admin admin)
         {
-            return View();
-        }
-
-        // POST: Admins/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id_admin,first_name,last_name,username,password")] admin admin)
-        {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                db.admins.Add(admin);
+                return BadRequest(ModelState);
+            }
+
+            if (id != admin.id_admin)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(admin).State = EntityState.Modified;
+
+            try
+            {
                 db.SaveChanges();
-                return RedirectToAction("Index");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!adminExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            return View(admin);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // GET: Admins/Edit/5
-        public ActionResult Edit(int? id)
+        // POST: api/Admins
+        [ResponseType(typeof(admin))]
+        public IHttpActionResult Postadmin(admin admin)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return BadRequest(ModelState);
             }
+
+            db.admins.Add(admin);
+            db.SaveChanges();
+
+            return CreatedAtRoute("DefaultApi", new { id = admin.id_admin }, admin);
+        }
+
+        // DELETE: api/Admins/5
+        [ResponseType(typeof(admin))]
+        public IHttpActionResult Deleteadmin(int id)
+        {
             admin admin = db.admins.Find(id);
             if (admin == null)
             {
-                return HttpNotFound();
+                return NotFound();
             }
-            return View(admin);
-        }
 
-        // POST: Admins/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id_admin,first_name,last_name,username,password")] admin admin)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(admin).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(admin);
-        }
-
-        // GET: Admins/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            admin admin = db.admins.Find(id);
-            if (admin == null)
-            {
-                return HttpNotFound();
-            }
-            return View(admin);
-        }
-
-        // POST: Admins/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            admin admin = db.admins.Find(id);
             db.admins.Remove(admin);
             db.SaveChanges();
-            return RedirectToAction("Index");
+
+            return Ok(admin);
         }
 
         protected override void Dispose(bool disposing)
@@ -122,6 +113,11 @@ namespace FindTheClueAPI.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private bool adminExists(int id)
+        {
+            return db.admins.Count(e => e.id_admin == id) > 0;
         }
     }
 }

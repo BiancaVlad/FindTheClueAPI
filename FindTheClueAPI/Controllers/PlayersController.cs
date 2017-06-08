@@ -2,117 +2,108 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Web;
-using System.Web.Mvc;
+using System.Net.Http;
+using System.Web.Http;
+using System.Web.Http.Description;
 using FindTheClueAPI;
 
 namespace FindTheClueAPI.Controllers
 {
-    public class PlayersController : Controller
+    public class PlayersController : ApiController
     {
         private findthecluedbEntities db = new findthecluedbEntities();
 
-        // GET: Players
-        public ActionResult Index()
+        public PlayersController()
         {
-            return View(db.players.ToList());
+            db.Configuration.ProxyCreationEnabled = false;
         }
 
-        // GET: Players/Details/5
-        public ActionResult Details(int? id)
+        // GET: api/Players
+        public IQueryable<player> Getplayers()
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            return db.players;
+        }
+
+        // GET: api/Players/5
+        [ResponseType(typeof(player))]
+        public IHttpActionResult Getplayer(int id)
+        {
             player player = db.players.Find(id);
             if (player == null)
             {
-                return HttpNotFound();
+                return NotFound();
             }
-            return View(player);
+
+            return Ok(player);
         }
 
-        // GET: Players/Create
-        public ActionResult Create()
+        // PUT: api/Players/5
+        [ResponseType(typeof(void))]
+        public IHttpActionResult Putplayer(int id, player player)
         {
-            return View();
-        }
-
-        // POST: Players/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id_player,first_name,last_name,email,phone_number,password,score")] player player)
-        {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                db.players.Add(player);
+                return BadRequest(ModelState);
+            }
+
+            if (id != player.id_player)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(player).State = EntityState.Modified;
+
+            try
+            {
                 db.SaveChanges();
-                return RedirectToAction("Index");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!playerExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            return View(player);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // GET: Players/Edit/5
-        public ActionResult Edit(int? id)
+        // POST: api/Players
+        [ResponseType(typeof(player))]
+        public IHttpActionResult Postplayer(player player)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return BadRequest(ModelState);
             }
+
+            db.players.Add(player);
+            db.SaveChanges();
+
+            return CreatedAtRoute("DefaultApi", new { id = player.id_player }, player);
+        }
+
+        // DELETE: api/Players/5
+        [ResponseType(typeof(player))]
+        public IHttpActionResult Deleteplayer(int id)
+        {
             player player = db.players.Find(id);
             if (player == null)
             {
-                return HttpNotFound();
+                return NotFound();
             }
-            return View(player);
-        }
 
-        // POST: Players/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id_player,first_name,last_name,email,phone_number,password,score")] player player)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(player).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(player);
-        }
-
-        // GET: Players/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            player player = db.players.Find(id);
-            if (player == null)
-            {
-                return HttpNotFound();
-            }
-            return View(player);
-        }
-
-        // POST: Players/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            player player = db.players.Find(id);
             db.players.Remove(player);
             db.SaveChanges();
-            return RedirectToAction("Index");
+
+            return Ok(player);
         }
 
         protected override void Dispose(bool disposing)
@@ -122,6 +113,11 @@ namespace FindTheClueAPI.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private bool playerExists(int id)
+        {
+            return db.players.Count(e => e.id_player == id) > 0;
         }
     }
 }

@@ -2,117 +2,108 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Web;
-using System.Web.Mvc;
+using System.Net.Http;
+using System.Web.Http;
+using System.Web.Http.Description;
 using FindTheClueAPI;
 
 namespace FindTheClueAPI.Controllers
 {
-    public class GamesController : Controller
+    public class GamesController : ApiController
     {
         private findthecluedbEntities db = new findthecluedbEntities();
 
-        // GET: Games
-        public ActionResult Index()
+        public GamesController()
         {
-            return View(db.games.ToList());
+            db.Configuration.ProxyCreationEnabled = false;
         }
 
-        // GET: Games/Details/5
-        public ActionResult Details(int? id)
+        // GET: api/Games
+        public IQueryable<game> Getgames()
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            return db.games;
+        }
+
+        // GET: api/Games/5
+        [ResponseType(typeof(game))]
+        public IHttpActionResult Getgame(int id)
+        {
             game game = db.games.Find(id);
             if (game == null)
             {
-                return HttpNotFound();
+                return NotFound();
             }
-            return View(game);
+
+            return Ok(game);
         }
 
-        // GET: Games/Create
-        public ActionResult Create()
+        // PUT: api/Games/5
+        [ResponseType(typeof(void))]
+        public IHttpActionResult Putgame(int id, game game)
         {
-            return View();
-        }
-
-        // POST: Games/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id_game,name,country,city,difficulty,rating")] game game)
-        {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                db.games.Add(game);
+                return BadRequest(ModelState);
+            }
+
+            if (id != game.id_game)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(game).State = EntityState.Modified;
+
+            try
+            {
                 db.SaveChanges();
-                return RedirectToAction("Index");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!gameExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            return View(game);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // GET: Games/Edit/5
-        public ActionResult Edit(int? id)
+        // POST: api/Games
+        [ResponseType(typeof(game))]
+        public IHttpActionResult Postgame(game game)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return BadRequest(ModelState);
             }
+
+            db.games.Add(game);
+            db.SaveChanges();
+
+            return CreatedAtRoute("DefaultApi", new { id = game.id_game }, game);
+        }
+
+        // DELETE: api/Games/5
+        [ResponseType(typeof(game))]
+        public IHttpActionResult Deletegame(int id)
+        {
             game game = db.games.Find(id);
             if (game == null)
             {
-                return HttpNotFound();
+                return NotFound();
             }
-            return View(game);
-        }
 
-        // POST: Games/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id_game,name,country,city,difficulty,rating")] game game)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(game).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(game);
-        }
-
-        // GET: Games/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            game game = db.games.Find(id);
-            if (game == null)
-            {
-                return HttpNotFound();
-            }
-            return View(game);
-        }
-
-        // POST: Games/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            game game = db.games.Find(id);
             db.games.Remove(game);
             db.SaveChanges();
-            return RedirectToAction("Index");
+
+            return Ok(game);
         }
 
         protected override void Dispose(bool disposing)
@@ -122,6 +113,11 @@ namespace FindTheClueAPI.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private bool gameExists(int id)
+        {
+            return db.games.Count(e => e.id_game == id) > 0;
         }
     }
 }

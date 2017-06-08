@@ -14,6 +14,9 @@ namespace FindTheClueAPI
     
     public partial class admin
     {
+        public admin()
+        {
+        }
         public int id_admin { get; set; }
         public string first_name { get; set; }
         public string last_name { get; set; }
