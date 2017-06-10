@@ -25,6 +25,8 @@
           <Property Name="city" Type="varchar" MaxLength="45" Nullable="false" />
           <Property Name="difficulty" Type="int" Nullable="false" />
           <Property Name="rating" Type="double" Nullable="false" />
+          <Property Name="picture" Type="longblob" />
+          <Property Name="duration" Type="int" />
         </EntityType>
         <EntityType Name="player">
           <Key>
@@ -148,6 +150,8 @@
           <Property Name="difficulty" Type="Int32" Nullable="false" />
           <Property Name="rating" Type="Double" Nullable="false" />
           <NavigationProperty Name="questions" Relationship="Self.fk_question_game" FromRole="game" ToRole="question" />
+          <Property Name="picture" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="duration" Type="Int32" />
         </EntityType>
         <EntityType Name="player">
           <Key>
@@ -236,6 +240,8 @@
           <EntitySetMapping Name="games">
             <EntityTypeMapping TypeName="findthecluedbModel.game">
               <MappingFragment StoreEntitySet="game">
+                <ScalarProperty Name="duration" ColumnName="duration" />
+                <ScalarProperty Name="picture" ColumnName="picture" />
                 <ScalarProperty Name="id_game" ColumnName="id_game" />
                 <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="country" ColumnName="country" />
