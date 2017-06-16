@@ -28,6 +28,7 @@ namespace FindTheClueAPI
         public double rating { get; set; }
         public byte[] picture { get; set; }
         public Nullable<int> duration { get; set; }
+        public string description { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<question> questions { get; set; }

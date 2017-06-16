@@ -27,6 +27,7 @@
           <Property Name="rating" Type="double" Nullable="false" />
           <Property Name="picture" Type="longblob" />
           <Property Name="duration" Type="int" />
+          <Property Name="description" Type="varchar" MaxLength="1000" Nullable="false" />
         </EntityType>
         <EntityType Name="player">
           <Key>
@@ -55,11 +56,12 @@
           <Property Name="id_question" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="answer_type" Type="int" />
           <Property Name="answer" Type="varchar" MaxLength="45" />
-          <Property Name="text_answer" Type="varchar" MaxLength="45" Nullable="false" />
+          <Property Name="text_answer" Type="varchar" MaxLength="500" Nullable="false" />
           <Property Name="score" Type="double" Nullable="false" />
           <Property Name="game_id_game" Type="int" Nullable="false" />
           <Property Name="longitude" Type="double" Nullable="false" />
           <Property Name="latitude" Type="double" Nullable="false" />
+          <Property Name="question_text" Type="varchar" MaxLength="1000" />
         </EntityType>
         <EntityType Name="team">
           <Key>
@@ -152,6 +154,7 @@
           <NavigationProperty Name="questions" Relationship="Self.fk_question_game" FromRole="game" ToRole="question" />
           <Property Name="picture" Type="Binary" MaxLength="Max" FixedLength="false" />
           <Property Name="duration" Type="Int32" />
+          <Property Name="description" Type="String" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="player">
           <Key>
@@ -179,6 +182,7 @@
           <NavigationProperty Name="game" Relationship="Self.fk_question_game" FromRole="question" ToRole="game" />
           <Property Name="longitude" Type="Double" Nullable="false" />
           <Property Name="latitude" Type="Double" Nullable="false" />
+          <Property Name="question_text" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="team">
           <Key>
@@ -240,6 +244,7 @@
           <EntitySetMapping Name="games">
             <EntityTypeMapping TypeName="findthecluedbModel.game">
               <MappingFragment StoreEntitySet="game">
+                <ScalarProperty Name="description" ColumnName="description" />
                 <ScalarProperty Name="duration" ColumnName="duration" />
                 <ScalarProperty Name="picture" ColumnName="picture" />
                 <ScalarProperty Name="id_game" ColumnName="id_game" />
@@ -267,6 +272,7 @@
           <EntitySetMapping Name="questions">
             <EntityTypeMapping TypeName="findthecluedbModel.question">
               <MappingFragment StoreEntitySet="question">
+                <ScalarProperty Name="question_text" ColumnName="question_text" />
                 <ScalarProperty Name="latitude" ColumnName="latitude" />
                 <ScalarProperty Name="longitude" ColumnName="longitude" />
                 <ScalarProperty Name="id_question" ColumnName="id_question" />
