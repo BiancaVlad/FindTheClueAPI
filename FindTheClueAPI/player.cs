@@ -27,6 +27,7 @@ namespace FindTheClueAPI
         public string phone_number { get; set; }
         public string password { get; set; }
         public double score { get; set; }
+        public byte[] profile_picture { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<team> teams { get; set; }

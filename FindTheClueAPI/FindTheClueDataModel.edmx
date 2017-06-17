@@ -28,6 +28,7 @@
           <Property Name="picture" Type="longblob" />
           <Property Name="duration" Type="int" />
           <Property Name="description" Type="varchar" MaxLength="1000" Nullable="false" />
+          <Property Name="rating_counter" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="player">
           <Key>
@@ -37,9 +38,10 @@
           <Property Name="first_name" Type="varchar" MaxLength="45" Nullable="false" />
           <Property Name="last_name" Type="varchar" MaxLength="45" Nullable="false" />
           <Property Name="email" Type="varchar" MaxLength="45" Nullable="false" />
-          <Property Name="phone_number" Type="varchar" MaxLength="45" Nullable="false" />
-          <Property Name="password" Type="varchar" MaxLength="45" Nullable="false" />
+          <Property Name="phone_number" Type="varchar" MaxLength="45" />
+          <Property Name="password" Type="varchar" MaxLength="45" />
           <Property Name="score" Type="double" Nullable="false" />
+          <Property Name="profile_picture" Type="longblob" />
         </EntityType>
         <EntityType Name="player_has_team">
           <Key>
@@ -155,6 +157,7 @@
           <Property Name="picture" Type="Binary" MaxLength="Max" FixedLength="false" />
           <Property Name="duration" Type="Int32" />
           <Property Name="description" Type="String" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="rating_counter" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="player">
           <Key>
@@ -168,6 +171,7 @@
           <Property Name="password" Type="String" MaxLength="45" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="score" Type="Double" Nullable="false" />
           <NavigationProperty Name="teams" Relationship="Self.player_has_team" FromRole="player" ToRole="team" />
+          <Property Name="profile_picture" Type="Binary" MaxLength="Max" FixedLength="false" />
         </EntityType>
         <EntityType Name="question">
           <Key>
@@ -244,6 +248,7 @@
           <EntitySetMapping Name="games">
             <EntityTypeMapping TypeName="findthecluedbModel.game">
               <MappingFragment StoreEntitySet="game">
+                <ScalarProperty Name="rating_counter" ColumnName="rating_counter" />
                 <ScalarProperty Name="description" ColumnName="description" />
                 <ScalarProperty Name="duration" ColumnName="duration" />
                 <ScalarProperty Name="picture" ColumnName="picture" />
@@ -259,6 +264,7 @@
           <EntitySetMapping Name="players">
             <EntityTypeMapping TypeName="findthecluedbModel.player">
               <MappingFragment StoreEntitySet="player">
+                <ScalarProperty Name="profile_picture" ColumnName="profile_picture" />
                 <ScalarProperty Name="id_player" ColumnName="id_player" />
                 <ScalarProperty Name="first_name" ColumnName="first_name" />
                 <ScalarProperty Name="last_name" ColumnName="last_name" />
